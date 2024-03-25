@@ -2,7 +2,7 @@
   "name": "jspsychtemplate",
   "private": true,
   "description": "jsPsych Experiment Template",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "author": "mupsy",
   "main": "src/electron-main.js",
   "scripts": {
