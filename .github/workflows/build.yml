@@ -1,0 +1,64 @@
+name: Build
+
+on:
+  push:
+    tags:
+    - "*"
+  workflow_dispatch:
+  
+jobs:
+  release:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+
+    name: build and release electron app
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: check out git repository
+        uses: actions/checkout@v3.0.0
+  
+      - name: Install Node.js
+        uses: actions/setup-node@v3.0.0
+        with:
+          node-version: "20"
+  
+      - name: Install Dependencies
+        run: npm install
+
+      - name: build vue vite
+        run: npm run build
+
+      - name: Build Electron App for Windows
+        if: matrix.os == 'windows-latest'
+        run: |
+          npm run build:win
+          npx rimraf --glob "release/!(*.zip)"
+
+      - name: Build Electron App for Mac
+        if: matrix.os == 'macos-latest'
+        run: |
+          npm run build:mac
+          npx rimraf --glob "release/!(*.dmg)"
+
+      - name: Build Electron App for Linux
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          npm run build:linux
+          npx rimraf --glob "release/!(*.deb)"
+
+      - name: upload artifacts
+        uses: actions/upload-artifact@v3.0.0
+        with:
+          name: ${{ matrix.os }}
+          path: release
+  
+      - name: release
+        uses: softprops/action-gh-release@v0.1.14
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: "release/**"
+        env:
+          GITHUB_TOKEN: ${{ secrets.SECRET }}

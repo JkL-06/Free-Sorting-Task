@@ -1,0 +1,58 @@
+<template>
+    <div id="exp"></div>
+</template>
+
+<script setup>
+import { onMounted, h, render } from 'vue';
+import { initJsPsych } from 'jspsych';
+import { jsPsychHtmlKeyboardResponse } from '@/utils/jspsych/plugin_all_in_one.js';
+
+import dragWord from './dragWord.vue';
+
+const jsPsych = initJsPsych({
+    display_element: "exp",
+    on_finish() {
+        console.log(jsPsych.data.get().csv());
+        jsPsych.data.get().localSave("csv", `${new Date().getTime()}.csv`);
+    }
+});
+
+const timeline = [{
+  timeline: [{
+    type: jsPsychHtmlKeyboardResponse,
+    choices: "NO_KEYS",
+    stimulus: () => {
+      return "请用本地浏览器打开";
+    }
+  }],
+  conditional_function: () => {
+    var ua = navigator.userAgent.toLowerCase();
+    if (ua.match(/micromessenger/i) == "micromessenger") {
+      return true;
+    } else {
+      return false;
+    }
+  }
+}];
+
+timeline.push({
+  type: jsPsychHtmlKeyboardResponse,
+  choices: ["NO_KEYS"],
+  stimulus: "<div id='main'></div>",
+  on_load() {
+    const dom = document.querySelector("#main");
+    const start_time = new Date().getTime();
+    render(h(dragWord, {
+      onEndExp(e) {
+        jsPsych.data.write({ ans: e });
+        jsPsych.finishTrial({ rt: new Date().getTime() - start_time });
+      }
+    }), dom);
+  }
+});
+
+
+onMounted(() => {
+    jsPsych.run(timeline);
+});
+</script>

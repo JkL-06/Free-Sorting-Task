@@ -1,0 +1,79 @@
+appId: com.mupsy.jsPsychTemplate
+productName: "jsPsych简易实验程序"
+icon: "public/favicon.png"
+asar: true
+artifactName: "${productName}-${version}-${platform}-${arch}.${ext}"
+directories:
+  buildResources: build
+  output: release
+files:
+  - '!**/.vscode/*'
+  - '!src/*'
+  - '!electron.vite.config.{js,ts,mjs,cjs}'
+  - '!{.eslintignore,.eslintrc.cjs,.prettierignore,.prettierrc.yaml,dev-app-update.yml,CHANGELOG.md,README.md}'
+  - '!{.env,.env.*,.npmrc,pnpm-lock.yaml}'
+  - '!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}'
+  - 'dist'
+  - '**/src/electron-main.js'
+asarUnpack:
+  - public/**
+win:
+  executableName: jsPsych
+  icon: "public/favicon.png"
+  target:
+    - target: portable
+      arch:
+        - "x64"
+        - "ia32"
+    - target: zip
+      arch:
+        - "x64"
+        - "ia32"
+  verifyUpdateCodeSignature: false
+  legalTrademarks: "mupsy2024"
+nsis:
+  oneClick: true
+  perMachine: true
+  allowToChangeInstallationDirectory: true
+  removeDefaultUninstallWelcomePage: true
+  artifactName: ${name}-${version}-setup.${ext}
+  shortcutName: ${productName}
+  uninstallDisplayName: ${productName}
+  createDesktopShortcut: always
+mac:
+  category: public.app-category.productivity
+  entitlementsInherit: build/entitlements.mac.plist
+  target:
+    - target: dmg
+      arch: universal
+  extendInfo:
+    - NSCameraUsageDescription: Application requests access to the device's camera.
+    - NSMicrophoneUsageDescription: Application requests access to the device's microphone.
+    - NSDocumentsFolderUsageDescription: Application requests access to the user's Documents folder.
+    - NSDownloadsFolderUsageDescription: Application requests access to the user's Downloads folder.
+dmg:
+  artifactName: ${name}-${version}.${ext}
+  contents:
+    - x: 380
+      y: 280
+      type: link
+      path: "/Applications"
+    - x: 110
+      y: 280
+      type: file
+  window:
+    width: 500
+    height: 500
+linux:
+  target:
+    - AppImage
+    - snap
+    - deb
+  maintainer: mupsy.net
+  category: Utility
+appImage:
+  artifactName: ${name}-${version}.${ext}
+npmRebuild: false
+publish:
+  provider: generic
+  url: https://github.com
