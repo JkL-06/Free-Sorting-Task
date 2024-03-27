@@ -17,7 +17,7 @@
 <script setup>
 import { ref, watch } from 'vue';
 import cha from './cha.vue';
-import word from './word.vue';
+import word from './word2.vue';
 
 const emits = defineEmits(["wordClick", "cancel", "changeTitle"]);
 
@@ -73,12 +73,13 @@ watch(isEditing, (n,o) => {
     display: flex;
     width: 100%;
     height: calc(100% - 24px);
+    margin: 10px 0 0 0;
     justify-content: space-between;
     align-items: flex-start;
     flex-wrap: wrap;
     overflow-y: auto;
 }
 .layout .content>div {
-    width: 35%;
+    max-width: 128px;
 }
 </style>

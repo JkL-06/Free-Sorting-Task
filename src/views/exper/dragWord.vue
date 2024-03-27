@@ -30,7 +30,7 @@ import { provide, reactive, ref, toRaw } from 'vue';
 const emits = defineEmits(["endExp"]);
 
 const res = reactive({}); // 结果放置
-const words = ref([]); // 存开头的语句
+const words = ref(["这是一个七个字"]); // 存开头的语句
 for (let i = 0; i < 5; i++) {
     words.value.push(i.toString());    
 };
