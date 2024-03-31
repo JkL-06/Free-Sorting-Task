@@ -7,15 +7,23 @@ import { onMounted, h, render } from 'vue';
 import { initJsPsych } from 'jspsych';
 import { jsPsychHtmlKeyboardResponse } from '@/utils/jspsych/plugin_all_in_one.js';
 
+import Naodao from '@/utils/naodao.js';
 import dragWord from './dragWord.vue';
+
+const naodao = new Naodao();
 
 const jsPsych = initJsPsych({
     display_element: "exp",
     on_finish() {
         console.log(jsPsych.data.get().csv());
         jsPsych.data.get().localSave("csv", `${new Date().getTime()}.csv`);
+        naodao.save();
     }
 });
+
+naodao.getData = () => {
+  return jsPsych.data.get().csv();
+}
 
 const timeline = [{
   timeline: [{
