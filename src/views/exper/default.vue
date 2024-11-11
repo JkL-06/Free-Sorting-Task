@@ -16,7 +16,8 @@ const jsPsych = initJsPsych({
     display_element: "exp",
     on_finish() {
         console.log(jsPsych.data.get().csv());
-        jsPsych.data.get().localSave("csv", `${new Date().getTime()}.csv`);
+        onCredamoEndTrialFinish(jsPsych.data.get().csv());
+        // jsPsych.data.get().localSave("csv", `${new Date().getTime()}.csv`);
         naodao.save();
     }
 });

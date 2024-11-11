@@ -1,5 +1,16 @@
 class Naodao {
-    getQueryString(params) {
+    __preUrl = 'https://www.naodao.com/api';
+    __token = '';
+    __id = '';
+    __location = '';
+    __itemId = '';
+    __beginDate = '';
+    getData = () => { return ""; };
+
+    constructor() {
+        this.init();
+    }
+    static getQueryString(params) {
         var query = window.location.search.substring(1);
         var vars = query.split("&");
         for (var i = 0; i < vars.length; i++) {
@@ -10,27 +21,17 @@ class Naodao {
         }
         return '';
     }
-    constructor(...opts) {
-        this.__preUrl = 'https://www.naodao.com/api';
-        this.__token = '';
-        this.__id = '';
-        this.__location = '';
-        this.__itemId = '';
-        this.__beginDate = '';
-        this.init();
-        this.getData = () => { return ""; };
-    }
     init() {
         var _this = this;
 
         var __localStorage = window.localStorage.getItem('__insula_l__');
         var __data = __localStorage ? JSON.parse(__localStorage) : {};
         _this.__beginDate = __data.user && __data.user.beginDate;
-        _this.__token = _this.getQueryString('__token');
-        _this.__id = _this.getQueryString('__id');
-        _this.__itemId = _this.getQueryString('__itemId');
+        _this.__token = Naodao.getQueryString('__token');
+        _this.__id = Naodao.getQueryString('__id');
+        _this.__itemId = Naodao.getQueryString('__itemId');
         _this.__location = window.location.href;
-        _this.monitor();
+
         fetch(_this.__preUrl + '/user/canvasNode/insertRecord', {
             method: "POST",
             headers: {
@@ -43,44 +44,19 @@ class Naodao {
                 itemId: _this.__itemId,
                 beginDate: _this.__beginDate ? _this.__beginDate : ''
             })
-        }).then(response => response.json())
-            .then(data => {
-                if (data.code === 200) {
-                    if (data.data) {
-                        _this.monitor();
-                    } else {
-                        _this.monitor("stop");
-                        // window.location.href="https://www.naodao.com/404"
-                    }
-                }
-            });
+        }).then(response => response.json());
     }
-    monitor(action = "start") {
-        switch (action) {
-            case "stop":
-                window.removeEventListener('beforeunload', this.beforeunload);
-                window.removeEventListener('unload', this.unload);
-                break;
-            default:
-                Object.keys(localStorage).forEach(v => {
-                    if (/tmpD\d{11}/.exec(v)) {
-                        let data = JSON.parse(localStorage.getItem(v));
-                        this.onlineSave(data["data"], 0, data["__id"], data.__token);
-                        let bool = this.offlineSave(data["data"], data.__id);
-                        if (bool) localStorage.removeItem(v);
-                    }
-                });
-                window.addEventListener('beforeunload', this.beforeunload);
-                window.addEventListener('unload', this.unload);
-                break;
-        }
-    }
-    save() {
-        let str = this.getData;
+    async save() {
+        let result;
         if (this.__token === 'preview' || this.__location.includes('file://')) {
-            this.offlineSave(str());
+            result = this.offlineSave(this.getData());
         } else {
-            this.onlineSave(str(), 1);
+            result = await this.onlineSave(this.getData());
+        }
+        if(!result) {
+            this.parent_post_message(this.__token, this.__id, !1, 500, "实验作答失败，请刷新重新作答！");
+        } else {
+            this.parent_post_message(this.__token, this.__id, !0, 200, "实验作答完成，感谢你的耐心等待，继续下一步？");
         }
     }
     offlineSave(str, id = this.__id) {
@@ -106,8 +82,8 @@ class Naodao {
             return false;
         }
     }
-    onlineSave(str, state = 0, id = this.__id, token = this.__token) {
-        fetch(this.__preUrl + '/user/jsPsych/results', {
+    async onlineSave(str, id = this.__id, token = this.__token) {
+        return fetch(this.__preUrl + '/user/jsPsych/results', {
             method: "POST",
             headers: {
                 "accept": "application/json, text/plain, */*",
@@ -121,36 +97,17 @@ class Naodao {
                 state: 1
             })
         }).then(response => response.json())
-            .then(data => {
-                if (data.code === 200) {
-                    this.monitor("stop");
-                    document.querySelector("body").innerHTML = `<p class='jspsych-content'>${"上传成功，本页面可以关闭啦~"}</p>`;
-                    setTimeout(function () {
-                        window.close();
-                    }, 5000);
-                } else {
-                    document.querySelector("body").innerHTML = `<p class='jspsych-content'>${"上传失败，不知道为什么哦~"}</p>`;
-                }
-            });
+          .then(data => {
+            if(data.code == 200) {
+                return true;
+            } else {
+                return false;
+            }
+          });
     }
-    beforeunload(event) {
-        event.preventDefault();
-        event.returnValue = '';
-    }
-    unload() {
-        getData = this.getData;
-        localStorage.setItem("tmpD" + new Date().getTime().toString(), JSON.stringify(
-            Object.assign({}, {
-                __beginDate: this.__beginDate,
-                __token: this.__token,
-                __id: this.__id,
-                __itemId: this.__itemId,
-                __location: this.__location,
-                state: 0
-            }, {
-                data: getData()
-            })
-        ));
+
+    parent_post_message(recordId, nodeId, isCompleted, code, message) {
+        window.parent.postMessage({ recordId, nodeId, isCompleted, code, message });
     }
 }
 export default Naodao;
