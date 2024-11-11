@@ -44,6 +44,7 @@ const timeline = [{
   }
 }];
 
+const uu = jsPsych.data.getURLVariable("uu");
 timeline.push({
   type: jsPsychHtmlKeyboardResponse,
   choices: ["NO_KEYS"],
@@ -51,7 +52,9 @@ timeline.push({
   on_load() {
     const dom = document.querySelector("#main");
     const start_time = new Date().getTime();
+    console.log(uu)
     render(h(dragWord, {
+      uu: uu == "good",
       onEndExp(e) {
         jsPsych.data.write({ ans: e });
         jsPsych.finishTrial({ rt: new Date().getTime() - start_time });
