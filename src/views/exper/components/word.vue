@@ -18,8 +18,10 @@ const props = defineProps({
     width: 100%;
     margin: auto;
     text-align: center;
-    font-size: 24px;
+    font-size: 18px;
     line-height: 32px;
+    border: 1px solid #000;
+    box-sizing: border-box;
     user-select: none;
     cursor: pointer;
 }
