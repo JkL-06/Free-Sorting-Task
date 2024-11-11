@@ -11,6 +11,7 @@ node_modules
 release
 .vscode
 dist
+dist*
 dist-ssr
 *.local
 
