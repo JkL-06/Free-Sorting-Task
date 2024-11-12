@@ -36,7 +36,7 @@
             <!-- 右侧选词的 -->
             <word v-if="words.length > 0" v-for="w in words" :word="w" draggable="true" @dragstart="dragstart"
                 @dragend="dragend"></word>
-            <div class="button" @click="emits('endExp', toRaw(res));" v-else>结束</div>
+            <div class="button" @click="emits('endExp', toRaw(res));" v-else>END</div>
         </div>
     </div>
 </template>
